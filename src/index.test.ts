@@ -1,29 +1,68 @@
-import { useMyHook } from './'
-import { renderHook, act } from "@testing-library/react-hooks";
+import { makeVar, useReactiveVar } from './'
+import { renderHook, act } from '@testing-library/react-hooks'
 
-// mock timer using jest
-jest.useFakeTimers();
+describe('makeVar', () => {
+  it('creates a ReactiveVariable that can be read and updated', () => {
+    const testVar = makeVar('TEST_VARIABLE')
 
-describe('useMyHook', () => {
-  it('updates every second', () => {
-    const { result } = renderHook(() => useMyHook());
+    expect(testVar()).toBe('TEST_VARIABLE')
 
-    expect(result.current).toBe(0);
+    testVar('TEST_UPDATED')
 
-    // Fast-forward 1sec
+    expect(testVar()).toBe('TEST_UPDATED')
+  })
+
+  it('creates a ReactiveVariable that can be subscribed for updates', () => {
+    const testVar = makeVar('TEST_VARIABLE')
+    const handler = jest.fn()
+
+    testVar.subscribe(handler)
+
+    testVar('TEST_UPDATED')
+
+    expect(handler).toHaveBeenCalledWith('TEST_UPDATED')
+  })
+
+  it('creates a ReactiveVariable that can be unsuscribed after subscription', () => {
+    const testVar = makeVar('TEST_VARIABLE')
+    const handler = jest.fn()
+
+    testVar.subscribe(handler)
+    testVar.unsubscribe(handler)
+
+    testVar('TEST_UPDATED')
+
+    expect(handler).not.toHaveBeenCalled()
+  })
+})
+
+describe('useReactiveVar', () => {
+  it('reacts the hooked component to a ReactiveVariable', async () => {
+    const testVar = makeVar('TEST_VARIABLE')
+    const hook = jest.fn()
+    hook.mockImplementation(() => useReactiveVar(testVar))
+
+    const { result, unmount } = renderHook(hook)
+
+    expect(result.current).toBe('TEST_VARIABLE')
+    expect(hook).toHaveBeenCalledTimes(1)
+
     act(() => {
-      jest.advanceTimersByTime(1000);
-    });
+      testVar('TEST_UPDATED')
+    })
 
-    // Check after total 1 sec
-    expect(result.current).toBe(1);
+    expect(result.current).toBe('TEST_UPDATED')
+    expect(hook).toHaveBeenCalledTimes(2)
 
-    // Fast-forward 1 more sec
+    unmount()
+
     act(() => {
-      jest.advanceTimersByTime(1000);
-    });
+      testVar('TEST_FINISHED')
+    })
 
-    // Check after total 2 sec
-    expect(result.current).toBe(2);
+    expect(hook).toHaveBeenCalledTimes(2)
+    expect(result.current).toBe('TEST_UPDATED')
+    expect(result.current).not.toBe('TEST_FINISHED')
+    expect(testVar()).toBe('TEST_FINISHED')
   })
 })

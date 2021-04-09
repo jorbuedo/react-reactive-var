@@ -12,16 +12,40 @@ npm install --save react-reactive-var
 
 ## Usage
 
+```ts
+// vars.ts
+
+import { makeVar } from 'react-reactive-var'
+
+export const counterVar = makeVar<number>(0)
+```
+
 ```tsx
-import * as React from 'react'
+// button.tsx
 
-import { useMyHook } from 'react-reactive-var'
+import React from 'react'
+import { counterVar } from './vars'
 
-const Example = () => {
-  const example = useMyHook()
+export default () => {
+  const handleClick = () => counterVar(counterVar() + 1)
+  return <button onClick={handleClick}>Click!</button>
+}
+```
+
+```tsx
+// example.tsx
+
+import React from 'react'
+import { useReactiveVar } from 'react-reactive-var'
+import Button from './Button'
+import { counterVar } from './vars'
+
+export default () => {
+  const example = useReactiveVar(counterVar)
   return (
     <div>
-      {example}
+      <div>{example}</div>
+      <Button />
     </div>
   )
 }
