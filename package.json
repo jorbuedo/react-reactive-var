@@ -1,6 +1,6 @@
 {
   "name": "react-reactive-var",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reactive variables for react using hooks.",
   "author": "jorbuedo",
   "license": "MIT",

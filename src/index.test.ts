@@ -34,6 +34,40 @@ describe('makeVar', () => {
 
     expect(handler).not.toHaveBeenCalled()
   })
+
+  it('creates a ReactiveVariable that can be unsuscribed with subscription return value', () => {
+    const testVar = makeVar('TEST_VARIABLE')
+    const handler = jest.fn()
+
+    const unsubscribe = testVar.subscribe(handler)
+    unsubscribe()
+
+    testVar('TEST_UPDATED')
+
+    expect(handler).not.toHaveBeenCalled()
+  })
+
+  it('creates a ReactiveVariable for an object without an equals function', () => {
+    const testVar = makeVar({ a: 'TEST_VARIABLE' })
+    const handler = jest.fn()
+
+    testVar.subscribe(handler)
+
+    testVar({ a: 'TEST_VARIABLE' })
+
+    expect(handler).toHaveBeenCalled()
+  })
+
+  it('creates a ReactiveVariable for an object with an equals function', () => {
+    const testVar = makeVar({ a: 'TEST_VARIABLE' }, (x, y) => x.a === y.a)
+    const handler = jest.fn()
+
+    testVar.subscribe(handler)
+
+    testVar({ a: 'TEST_VARIABLE' })
+
+    expect(handler).not.toHaveBeenCalled()
+  })
 })
 
 describe('useReactiveVar', () => {

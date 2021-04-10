@@ -4,6 +4,13 @@
 
 [![NPM](https://img.shields.io/npm/v/react-reactive-var.svg)](https://www.npmjs.com/package/react-reactive-var) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
+## Table of Contents
+
+- [Install](#install)
+- [Usage](#usage)
+- [API](#api)
+- [License](#license)
+
 ## Install
 
 ```bash
@@ -50,6 +57,33 @@ export default () => {
   )
 }
 ```
+
+[View the example](https://jorbuedo.github.io/react-reactive-var/)
+
+## API
+
+### makeVar
+
+Creates a new reactive variable, which is a tiny evented variable.
+
+**Parameters**
+
+- `initialValue` First parameter sets the initial value of the variable.
+- `equalsFunc` *Optional* equals function to compare current value with a new one. Without it a strict equality operation is used.
+
+**Returns** a `ReactiveVar`
+### useReactiveVar
+
+A react hook that subscribes to changes in a `ReactiveVar` to rerender the component when the variable changes. Must follow the [Rules of Hooks](https://reactjs.org/docs/hooks-rules.html).
+
+**Parameters**
+
+- `ReactiveVar`
+
+### *type* ReactiveVar
+ - It's a function. Call it without parameters to get the value. Call it with a parameter to set the value.
+ - `.subscribe` Attribute function. Call it with a handler to be called whenever the variable is updated. Returns an unsuscribe function.
+ - `.unsuscribe` Attribute function. Call it with the same handler as the subscribe function to unsuscribe.
 
 ## License
 

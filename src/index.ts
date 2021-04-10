@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react'
 
-type ReactiveVar<T> = {
+export type ReactiveVar<T> = {
   (newValue?: T): T
-  subscribe: (handler: Function) => void
+  subscribe: (handler: Function) => () => void
   unsubscribe: (handler: Function) => void
 }
 
-export const makeVar = <T extends unknown>(initialValue: T): ReactiveVar<T> => {
+type EqualsFunc<T> = (a: T, b: T) => boolean
+
+export const makeVar = <T extends unknown>(initialValue: T, equalsFunc?: EqualsFunc<T>): ReactiveVar<T> => {
   let value = initialValue
   const subscribers = new Set<Function>()
 
   const reVar = (newValue?: T) => {
-    if (newValue !== undefined && newValue !== value) {
+    if (newValue !== undefined && (equalsFunc? !equalsFunc(newValue, value) : newValue !== value)) {
       value = newValue
       subscribers.forEach((handler) => handler(value))
     }
@@ -20,6 +22,7 @@ export const makeVar = <T extends unknown>(initialValue: T): ReactiveVar<T> => {
 
   reVar.subscribe = (handler: Function) => {
     subscribers.add(handler)
+    return () => subscribers.delete(handler)
   }
 
   reVar.unsubscribe = (handler: Function) => {
