@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer } from 'react'
 
 export type ReactiveVar<T> = {
   (newValue?: T | ((value: T) => T)): T
@@ -43,15 +43,14 @@ export const makeVar = <T extends unknown>(initialValue: T, equalsFunc?: EqualsF
 }
 
 export const useReactiveVar = <T extends unknown>(reactiveVar: ReactiveVar<T>) => {
-  const [value, setValue] = useState<T>(reactiveVar())
+  const handler = useReducer(x => x + 1, 0)[1] as () => void
 
   useEffect(() => {
-    const handler = (v: T) => setValue(v)
     reactiveVar.subscribe(handler)
     return () => {
       reactiveVar.unsubscribe(handler)
     }
   }, [])
 
-  return value
+  return reactiveVar()
 }
