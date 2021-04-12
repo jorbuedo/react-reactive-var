@@ -23,6 +23,17 @@ describe('makeVar', () => {
     expect(handler).toHaveBeenCalledWith('TEST_UPDATED')
   })
 
+  it('creates a ReactiveVariable that can be subscribed for updates from a function', () => {
+    const testVar = makeVar('TEST_VARIABLE')
+    const handler = jest.fn()
+
+    testVar.subscribe(handler)
+
+    testVar(state => state + '_UPDATED')
+
+    expect(handler).toHaveBeenCalledWith('TEST_VARIABLE_UPDATED')
+  })
+
   it('creates a ReactiveVariable that can be unsuscribed after subscription', () => {
     const testVar = makeVar('TEST_VARIABLE')
     const handler = jest.fn()

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 export type ReactiveVar<T> = {
-  (newValue?: T): T
+  (newValue?: T | ((value: T) => T)): T
   subscribe: (handler: Function) => () => void
   unsubscribe: (handler: Function) => void
 }
@@ -12,34 +12,44 @@ export const makeVar = <T extends unknown>(initialValue: T, equalsFunc?: EqualsF
   let value = initialValue
   const subscribers = new Set<Function>()
 
-  const reVar = (newValue?: T) => {
-    if (newValue !== undefined && (equalsFunc? !equalsFunc(newValue, value) : newValue !== value)) {
-      value = newValue
-      subscribers.forEach((handler) => handler(value))
+  const reactiveVar = (newValue?: T | ((value: T) => T)) => {
+    if (newValue !== undefined) {
+      let nextValue = value
+
+      if (newValue instanceof Function) {
+        nextValue = newValue(value)
+      } else {
+        nextValue = newValue
+      }
+
+      if (equalsFunc? !equalsFunc(nextValue, value) : nextValue !== value) {
+        subscribers.forEach((handler) => handler(nextValue))
+      }
+      value = nextValue
     }
     return value
   }
 
-  reVar.subscribe = (handler: Function) => {
+  reactiveVar.subscribe = (handler: Function) => {
     subscribers.add(handler)
     return () => subscribers.delete(handler)
   }
 
-  reVar.unsubscribe = (handler: Function) => {
+  reactiveVar.unsubscribe = (handler: Function) => {
     subscribers.delete(handler)
   }
 
-  return reVar
+  return reactiveVar
 }
 
-export const useReactiveVar = <T extends unknown>(reVar: ReactiveVar<T>) => {
-  const [value, setValue] = useState<T>(reVar())
+export const useReactiveVar = <T extends unknown>(reactiveVar: ReactiveVar<T>) => {
+  const [value, setValue] = useState<T>(reactiveVar())
 
   useEffect(() => {
     const handler = (v: T) => setValue(v)
-    reVar.subscribe(handler)
+    reactiveVar.subscribe(handler)
     return () => {
-      reVar.unsubscribe(handler)
+      reactiveVar.unsubscribe(handler)
     }
   }, [])
 

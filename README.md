@@ -81,7 +81,7 @@ A react hook that subscribes to changes in a `ReactiveVar` to rerender the compo
 - `ReactiveVar`
 
 ### *type* ReactiveVar
- - It's a function. Call it without parameters to get the value. Call it with a parameter to set the value.
+ - It's a function. Call it without parameters to get the value. Call it with a parameter to set the value. Also accepts a function to update the value from the current one.
  - `.subscribe` Attribute function. Call it with a handler to be called whenever the variable is updated. Returns an unsuscribe function.
  - `.unsuscribe` Attribute function. Call it with the same handler as the subscribe function to unsuscribe.
 
