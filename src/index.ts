@@ -8,7 +8,10 @@ export type ReactiveVar<T> = {
 
 type EqualsFunc<T> = (a: T, b: T) => boolean
 
-export const makeVar = <T extends unknown>(initialValue: T, equalsFunc?: EqualsFunc<T>): ReactiveVar<T> => {
+export const makeVar = <T extends unknown>(
+  initialValue: T,
+  equalsFunc?: EqualsFunc<T>,
+): ReactiveVar<T> => {
   let value = initialValue
   const subscribers = new Set<Function>()
 
@@ -22,7 +25,7 @@ export const makeVar = <T extends unknown>(initialValue: T, equalsFunc?: EqualsF
         nextValue = newValue
       }
 
-      if (equalsFunc? !equalsFunc(nextValue, value) : nextValue !== value) {
+      if (equalsFunc ? !equalsFunc(nextValue, value) : nextValue !== value) {
         subscribers.forEach((handler) => handler(nextValue))
       }
       value = nextValue
@@ -42,8 +45,10 @@ export const makeVar = <T extends unknown>(initialValue: T, equalsFunc?: EqualsF
   return reactiveVar
 }
 
-export const useReactiveVar = <T extends unknown>(reactiveVar: ReactiveVar<T>) => {
-  const handler = useReducer(x => x + 1, 0)[1] as () => void
+export const useReactiveVar = <T extends unknown>(
+  reactiveVar: ReactiveVar<T>,
+) => {
+  const handler = useReducer((x) => x + 1, 0)[1] as () => void
 
   useEffect(() => {
     reactiveVar.subscribe(handler)

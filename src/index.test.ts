@@ -29,7 +29,7 @@ describe('makeVar', () => {
 
     testVar.subscribe(handler)
 
-    testVar(state => state + '_UPDATED')
+    testVar((state) => state + '_UPDATED')
 
     expect(handler).toHaveBeenCalledWith('TEST_VARIABLE_UPDATED')
   })
