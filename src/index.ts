@@ -18,6 +18,7 @@ export const makeVar = <T extends unknown>(
   const reactiveVar = (newValue?: T | ((value: T) => T)) => {
     if (newValue !== undefined) {
       let nextValue = value
+      let valueChanged
 
       if (newValue instanceof Function) {
         nextValue = newValue(value)
@@ -25,10 +26,12 @@ export const makeVar = <T extends unknown>(
         nextValue = newValue
       }
 
-      if (equalsFunc ? !equalsFunc(nextValue, value) : nextValue !== value) {
-        subscribers.forEach((handler) => handler(nextValue))
-      }
+      valueChanged = equalsFunc ? !equalsFunc(nextValue, value) : nextValue !== value
       value = nextValue
+
+      if (valueChanged) {
+        subscribers.forEach((handler) => handler(value))
+      }
     }
     return value
   }
